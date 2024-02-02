@@ -15,16 +15,11 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+# Include the Eigen directory
+include_directories(${PROJECT_SOURCE_DIR}/eigen-3.4.0)
 add_subdirectory(src)
-enable_testing()
-add_subdirectory(tests)
-
-################################################################################
-####################### Do not modify this file. ###############################
-################################################################################
-
+add_executable(my_executable main.cpp)
