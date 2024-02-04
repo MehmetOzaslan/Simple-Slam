@@ -461,3 +461,17 @@ Parsed CXX implicit link information from above output:
   implicit fwks: []
 
 
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /home/lithium/SLAM/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_ca52f/fast && /usr/bin/make -f CMakeFiles/cmTC_ca52f.dir/build.make CMakeFiles/cmTC_ca52f.dir/build
+make[1]: Entering directory '/home/lithium/SLAM/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_ca52f.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_ca52f.dir/CheckIncludeFile.c.o   -c /home/lithium/SLAM/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_ca52f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ca52f.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_ca52f.dir/CheckIncludeFile.c.o  -o cmTC_ca52f 
+make[1]: Leaving directory '/home/lithium/SLAM/build/CMakeFiles/CMakeTmp'
+
+
+

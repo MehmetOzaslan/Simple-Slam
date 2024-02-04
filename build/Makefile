@@ -123,6 +123,19 @@ my_executable/fast:
 	$(MAKE) -f CMakeFiles/my_executable.dir/build.make CMakeFiles/my_executable.dir/build
 .PHONY : my_executable/fast
 
+#=============================================================================
+# Target rules for targets named libicp
+
+# Build rule for target.
+libicp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 libicp
+.PHONY : libicp
+
+# fast build rule for target.
+libicp/fast:
+	$(MAKE) -f CMakeFiles/libicp.dir/build.make CMakeFiles/libicp.dir/build
+.PHONY : libicp/fast
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -150,6 +163,33 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/my_executable.dir/build.make CMakeFiles/my_executable.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+src/icp.o: src/icp.cpp.o
+
+.PHONY : src/icp.o
+
+# target to build an object file
+src/icp.cpp.o:
+	$(MAKE) -f CMakeFiles/libicp.dir/build.make CMakeFiles/libicp.dir/src/icp.cpp.o
+.PHONY : src/icp.cpp.o
+
+src/icp.i: src/icp.cpp.i
+
+.PHONY : src/icp.i
+
+# target to preprocess a source file
+src/icp.cpp.i:
+	$(MAKE) -f CMakeFiles/libicp.dir/build.make CMakeFiles/libicp.dir/src/icp.cpp.i
+.PHONY : src/icp.cpp.i
+
+src/icp.s: src/icp.cpp.s
+
+.PHONY : src/icp.s
+
+# target to generate assembly for a file
+src/icp.cpp.s:
+	$(MAKE) -f CMakeFiles/libicp.dir/build.make CMakeFiles/libicp.dir/src/icp.cpp.s
+.PHONY : src/icp.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -159,9 +199,13 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... my_executable"
+	@echo "... libicp"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... src/icp.o"
+	@echo "... src/icp.i"
+	@echo "... src/icp.s"
 .PHONY : help
 
 

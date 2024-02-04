@@ -14,12 +14,17 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -fPIC")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+add_library(libicp STATIC ${PROJECT_SOURCE_DIR}/src/icp.cpp)
 
-# Include the Eigen directory
-include_directories(${PROJECT_SOURCE_DIR}/eigen-3.4.0)
-add_subdirectory(src)
+include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/lib)
+
 add_executable(my_executable main.cpp)
+
+target_link_libraries(my_executable PRIVATE Threads::Threads)
+target_include_directories(my_executable PRIVATE ${PROJECT_SOURCE_DIR}/lib/)
