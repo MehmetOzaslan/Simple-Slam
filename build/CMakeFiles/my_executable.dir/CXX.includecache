@@ -1301,6 +1301,8 @@ vector
 /home/lithium/SLAM/main.cpp
 Eigen/Dense
 -
+Eigen/Jacobi
+-
 iostream
 -
 nanoflann.hpp
