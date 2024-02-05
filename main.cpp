@@ -7,50 +7,25 @@
 
 using namespace nanoflann;
 
-// Eigen::Matrix4d ICP(Eigen::Matrixx<num_t, n_points,3> pointcloud2){
 
-// }
+// const Eigen::Matrix<num_t, n_points, 3>& x, const Eigen::Matrix<num_t, n_points, 3>& p
 
+template <typename num_t, int n_points>
+Eigen::Matrix<num_t,n_points,3> CorrespondPoints(Eigen::Matrix<num_t,n_points,3> x, Eigen::Matrix<num_t,n_points,3> p){
 
-int main() {
-    using num_t = double;
-    const int n_points = 5;
-    const int max_leaf = 10;
-    const int DIM = 3;
     typedef KDTreeEigenMatrixAdaptor< Eigen::Matrix<num_t,n_points,3> >  my_kd_tree_t;
+    const int DIM = 3;
+    const int max_leaf = 10;
 
-    //Create point clouds
-    Eigen::Matrix<num_t, n_points,3> pointcloud1 = Eigen::MatrixXd::Random(n_points,3);
-
-    //Rotate by the above matrix, and add some random vector to the second pointcloud.
-    
-    Eigen::Matrix<num_t, 3,3> rotationalMatrix = Eigen::MatrixXd(3,3);
-    rotationalMatrix << 0.73842711,  0.6743333 ,  0,
-                        -0.6743333 ,  0.73842711,  0.,
-                        0.        ,  0.        ,  1.;
-
-    Eigen::Matrix<num_t, n_points,3> pointcloud2 = pointcloud1 * rotationalMatrix;
-    Eigen::RowVector3d random_offset = Eigen::RowVector3d::Random();
-    pointcloud2.rowwise() += random_offset;
-
-    //Assume that we have a function defined at this point.
-
-    //Get the centroids.
-    Eigen::Vector3d centerOfMass1 = pointcloud1.colwise().mean();
-    Eigen::Vector3d centerOfMass2 = pointcloud2.colwise().mean();
-
-    //Translate the point clouds so their center of mass is at the origin.
-    pointcloud1.rowwise() -= centerOfMass1.transpose();
-    pointcloud2.rowwise() -= centerOfMass2.transpose();        
 
     //Create point clouds.
-    my_kd_tree_t point_cloud_index(DIM, pointcloud1, max_leaf);
+    my_kd_tree_t point_cloud_index(DIM, x, max_leaf);
     point_cloud_index.index_->buildIndex();
     
-    Eigen::MatrixXd mapped_points = pointcloud2; 
-    for (int i = 0; i < pointcloud2.rows(); ++i) {
+    Eigen::MatrixXd mapped_points = p; 
+    for (int i = 0; i < p.rows(); ++i) {
         // Query point
-        num_t query_pt[DIM] = { pointcloud2(i,0), pointcloud2(i,1), pointcloud2(i,2) };
+        num_t query_pt[DIM] = { p(i,0), p(i,1), p(i,2) };
 
         // Results
         size_t ret_index;
@@ -60,12 +35,29 @@ int main() {
 
         // Perform the search
         point_cloud_index.index_->findNeighbors(resultSet, &query_pt[0]);
-        //the nearest neighbor is gonna be in the ith index <-> ret_index so update pointcloud2 so that they match up properly
-        mapped_points.row(i) = pointcloud2.row(ret_index);
+        //the nearest neighbor is gonna be in the ith index <-> ret_index so update p so that they match up properly
+        mapped_points.row(i) = p.row(ret_index);
     }
 
+    return mapped_points;
+}
+
+
+template <typename num_t, int n_points>
+Eigen::Matrix4d ObtainPose(Eigen::Matrix<num_t,n_points,3> x, Eigen::Matrix<num_t,n_points,3> p){
+
+    //Get the centroids.
+    Eigen::Vector3d centerOfMass1 = x.colwise().mean();
+    Eigen::Vector3d centerOfMass2 = p.colwise().mean();
+
+    //Translate the point clouds so their center of mass is at the origin.
+    x.rowwise() -= centerOfMass1.transpose();
+    p.rowwise() -= centerOfMass2.transpose();        
+    
+    Eigen::Matrix<num_t,n_points,3> mapped_points = CorrespondPoints(x,p);
+
     //Now that everything has been centralized and mapped, multiply stuff out.
-    Eigen::MatrixXd W = mapped_points.transpose() * pointcloud1;
+    Eigen::MatrixXd W = mapped_points.transpose() * x;
 
     //Now do SVD.
     // Eigen::BDCSVD<Eigen::MatrixXd> svd(W,Eigen::ComputeThinU | Eigen::ComputeThinV);
@@ -83,11 +75,38 @@ int main() {
     Eigen::MatrixXd R = U * I * V.transpose();
     Eigen::Vector3d t = centerOfMass1 - R * centerOfMass2;
 
-    std::cout << "Rotational Matrix:" << std::endl << R << std::endl;
-    std::cout << "Offset:" << std::endl << t << std::endl;
-
     Eigen::MatrixXd pose(4,4);
     pose << R, t, 0,0,0,1;
+    return pose;
+}
+
+
+int main() {
+    using num_t = double;
+    const int n_points = 5;
+
+    //Create point clouds
+    Eigen::Matrix<num_t, n_points,3> x = Eigen::MatrixXd::Random(n_points,3);
+
+    //Rotate by the matrix, and add some random vector to the second pointcloud.
+    Eigen::Matrix<num_t, 3,3> R = Eigen::MatrixXd(3,3);
+    R << 0.73842711,  0.6743333 ,  0,
+                        -0.6743333 ,  0.73842711,  0.,
+                        0.        ,  0.        ,  1.;
+
+    Eigen::Matrix<num_t, n_points,3> p = x * R;
+    Eigen::RowVector3d t = Eigen::RowVector3d::Random();
+    p.rowwise() += t;
+
+    Eigen::Matrix4d original_translation(4,4);
+    original_translation << R, t.transpose(), 0,0,0,1;
+
+
     
-    std::cout << "Result: " << pose << std::endl;
+
+    Eigen::Matrix4d pose = ObtainPose(p, x);
+
+    std::cout << "Original: " << std::endl <<  std::endl <<  original_translation << std::endl;
+    std::cout << "Result: " << std::endl << pose << std::endl;
+
 }
