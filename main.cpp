@@ -1,22 +1,20 @@
 #include <Eigen/Dense>
 #include <Eigen/Jacobi>
 #include <iostream>
-#include <nanoflann.hpp>
 #include <pthread.h>
 #include "icp.h"
 
+#include <nanoflann.hpp>
 using namespace nanoflann;
 
-
-// const Eigen::Matrix<num_t, n_points, 3>& x, const Eigen::Matrix<num_t, n_points, 3>& p
-
+// Given two point clouds in matrix form, map point i to point j using KNN
+// Returns the second point cloud in the order of the first.
 template <typename num_t, int n_points>
-Eigen::Matrix<num_t,n_points,3> CorrespondPoints(Eigen::Matrix<num_t,n_points,3> x, Eigen::Matrix<num_t,n_points,3> p){
+Eigen::Matrix<num_t,n_points,3> CorrespondPoints(const Eigen::Matrix<num_t,n_points,3>& x, const Eigen::Matrix<num_t,n_points,3>& p){
 
     typedef KDTreeEigenMatrixAdaptor< Eigen::Matrix<num_t,n_points,3> >  my_kd_tree_t;
     const int DIM = 3;
     const int max_leaf = 10;
-
 
     //Create point clouds.
     my_kd_tree_t point_cloud_index(DIM, x, max_leaf);
@@ -90,9 +88,9 @@ int main() {
 
     //Rotate by the matrix, and add some random vector to the second pointcloud.
     Eigen::Matrix<num_t, 3,3> R = Eigen::MatrixXd(3,3);
-    R << 0.73842711,  0.6743333 ,  0,
-                        -0.6743333 ,  0.73842711,  0.,
-                        0.        ,  0.        ,  1.;
+    R << 0.996, -0.087,  0,
+        0.087 ,  0.996,  0.,
+         0.   ,  0.   ,  1;
 
     Eigen::Matrix<num_t, n_points,3> p = x * R;
     Eigen::RowVector3d t = Eigen::RowVector3d::Random();
@@ -101,12 +99,18 @@ int main() {
     Eigen::Matrix4d original_translation(4,4);
     original_translation << R, t.transpose(), 0,0,0,1;
 
+    Eigen::Matrix4d pose;
 
-    
+    for(int i = 0; i < 1; ++i){
+        pose = ObtainPose(x, p);
+        Eigen::MatrixXd pointsHomogeneous(p.rows(), 4);
+        pointsHomogeneous << p, Eigen::VectorXd::Ones(p.rows());
 
-    Eigen::Matrix4d pose = ObtainPose(p, x);
+        Eigen::MatrixXd transformedPointsHomogeneous = pointsHomogeneous * pose.transpose();
+        p = transformedPointsHomogeneous.block(0, 0, p.rows(), 3);
+    }
 
-    std::cout << "Original: " << std::endl <<  std::endl <<  original_translation << std::endl;
+    std::cout << "Original: " << std::endl <<  original_translation << std::endl;
     std::cout << "Result: " << std::endl << pose << std::endl;
 
 }

@@ -1,1 +1,1 @@
-/usr/bin/c++  -Wall -Wextra -fPIC -O3  -rdynamic CMakeFiles/my_executable.dir/main.cpp.o  -o my_executable  -pthread 
+/usr/bin/c++  -Wall -Wextra -fPIC -DEIGEN_STACK_ALLOCATION_LIMIT=0 -O3  -rdynamic CMakeFiles/my_executable.dir/main.cpp.o  -o my_executable  -pthread 
