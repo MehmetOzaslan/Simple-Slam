@@ -1,7 +1,3 @@
-################################################################################
-####################### Do not modify this file. ###############################
-################################################################################
-
 project(initial_matrix)
 cmake_minimum_required(VERSION 3.1)
 
@@ -17,15 +13,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
-
-add_library(libicp STATIC ${PROJECT_SOURCE_DIR}/src/icp.cpp)
-
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/lib)
-
+# Executable
 add_executable(my_executable main.cpp)
-
-target_link_libraries(my_executable PRIVATE Threads::Threads)
-target_include_directories(my_executable PRIVATE ${PROJECT_SOURCE_DIR}/lib/)
+target_include_directories(my_executable PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(my_executable Threads::Threads)
